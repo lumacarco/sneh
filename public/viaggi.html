@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Viaggi — MLA & SNEH</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="pages">
+  <header class="page-nav">
+    <a class="brand" href="/chat.html">MLA <span>&</span> SNEH</a>
+    <nav>
+      <a href="/chat.html">Chat</a>
+      <a class="on" href="/viaggi.html">Viaggi</a>
+    </nav>
+  </header>
+  <main class="page-wrap">
+    <div class="page-head">
+      <div>
+        <h1>Pagine viaggio</h1>
+        <p>Gite, camminate, itinerari della community.</p>
+      </div>
+      <a class="btn slim" href="/chat.html">Crea dalla chat</a>
+    </div>
+    <div class="trip-grid" id="grid"></div>
+  </main>
+  <script>
+    fetch('/api/me').then(r=>r.json()).then(d => { if (!d.ok) location.href='/'; });
+    const kinds = { gita:'Gita', montagna:'Montagna', viaggio:'Viaggio', altro:'Altro' };
+    fetch('/api/trips').then(r=>r.json()).then(d => {
+      const grid = document.getElementById('grid');
+      if (!d.trips.length) { grid.innerHTML = '<p class="empty">Nessun viaggio ancora.</p>'; return; }
+      grid.innerHTML = d.trips.map(t => `
+        <a class="trip-card" href="/viaggio.html?id=${t.id}">
+          <div class="cover" style="${t.cover ? `background-image:url('${t.cover}')` : ''}">
+            <span class="kind">${kinds[t.kind] || t.kind}</span>
+          </div>
+          <div class="body">
+            <h2>${t.title}</h2>
+            <p>${t.place}</p>
+            <div class="meta-row">
+              <span>${t.date_start || 'data da definire'}</span>
+              <span>${t.participants.length} persone</span>
+            </div>
+          </div>
+        </a>`).join('');
+    });
+  </script>
+</body>
+</html>

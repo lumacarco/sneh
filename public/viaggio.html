@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Viaggio — MLA & SNEH</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="pages">
+  <header class="page-nav">
+    <a class="brand" href="/chat.html">MLA <span>&</span> SNEH</a>
+    <nav>
+      <a href="/chat.html">Chat</a>
+      <a class="on" href="/viaggi.html">Viaggi</a>
+    </nav>
+  </header>
+  <main class="page-wrap trip-page" id="root">Caricamento…</main>
+  <script>
+    const id = new URLSearchParams(location.search).get('id');
+    const kinds = { gita:'Gita', montagna:'Montagna / camminata', viaggio:'Viaggio', altro:'Altro' };
+    let me = null;
+    Promise.all([fetch('/api/me').then(r=>r.json()), fetch('/api/trips/'+id).then(r=>r.json())]).then(([a,b]) => {
+      if (!a.ok) { location.href='/'; return; }
+      me = a.user;
+      if (!b.ok) { root.textContent = b.error; return; }
+      render(b.trip);
+    });
+    function render(t) {
+      document.title = t.title + ' — MLA & SNEH';
+      const joined = t.participants.some(p => p.id === me.id);
+      const mapq = encodeURIComponent(t.place);
+      root.innerHTML = `
+        <div class="hero" style="${t.cover ? `background-image:linear-gradient(180deg,rgba(0,0,0,.15),rgba(7,7,13,.85)),url('${t.cover}')` : ''}">
+          <span class="kind">${kinds[t.kind] || t.kind}</span>
+          <h1>${t.title}</h1>
+          <p>${t.place}</p>
+        </div>
+        <div class="trip-layout">
+          <article class="panel">
+            <h3>Quando</h3>
+            <p>${t.date_start || 'da definire'}${t.date_end ? ' → ' + t.date_end : ''}</p>
+            ${t.meeting ? `<h3>Ritrovo</h3><p>${t.meeting}</p>` : ''}
+            <h3>Difficoltà</h3><p>${t.difficulty}</p>
+            ${t.itinerary ? `<h3>Itinerario</h3><p class="pre">${t.itinerary}</p>` : ''}
+            ${t.notes ? `<h3>Note</h3><p class="pre">${t.notes}</p>` : ''}
+            <h3>Mappa</h3>
+            <iframe class="map" loading="lazy" src="https://maps.google.com/maps?q=${mapq}&output=embed"></iframe>
+          </article>
+          <aside class="panel">
+            <h3>Chi viene</h3>
+            <p class="muted">${t.participants.length} iscritti${t.max_people ? ' / '+t.max_people : ''}</p>
+            <ul class="people">${t.participants.map(p => `<li>${p.name}${p.id===t.author_id?' · organizzatore':''}</li>`).join('')}</ul>
+            <button class="btn" id="join">${joined ? 'Non partecipo più' : 'Mi unisco'}</button>
+            <p class="muted" style="margin-top:14px">Creata da ${t.author}</p>
+            <a class="btn ghost" href="/chat.html">Torna in chat</a>
+          </aside>
+        </div>`;
+      document.getElementById('join').onclick = async () => {
+        const url = `/api/trips/${t.id}/` + (joined ? 'leave' : 'join');
+        const r = await fetch(url, { method:'POST' }).then(x=>x.json());
+        if (!r.ok) { alert(r.error); return; }
+        render(r.trip);
+      };
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MLA & SNEH — sala chat</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <h1>MLA <span>&</span> SNEH</h1>
+      <div class="mebox">
+        <div style="color:#9a94b8;font-size:12px">Sei</div>
+        <div style="font-weight:700;font-size:18px" id="myName">…</div>
+        <div class="pts" id="myPoints">0</div>
+        <div style="font-size:12px;color:#9a94b8">punti IA totali</div>
+      </div>
+      <div class="navlinks">
+        <a class="on" href="/chat.html">Chat live</a>
+        <a href="/viaggi.html">Viaggi e gite</a>
+      </div>
+      <p class="hint">WebSocket: i messaggi arrivano subito. L’IA valuta ogni frase. Puoi creare una pagina viaggio e mandarla in chat.</p>
+      <a class="out" href="#" id="logout">Esci</a>
+    </aside>
+    <section class="main">
+      <div class="top">
+        <div class="room">Sala principale</div>
+        <div class="live" id="live">● websocket</div>
+      </div>
+      <div id="feed"></div>
+      <div id="emojiPop" class="emoji-pop"></div>
+      <form class="composer" id="composer">
+        <div class="tools">
+          <button type="button" id="emojiBtn">😊 Faccette</button>
+          <button type="button" id="tripBtn">⛰ Crea viaggio</button>
+          <label class="up">🖼 Immagine / GIF / video / file
+            <input type="file" id="file" hidden accept="image/*,video/*,.pdf,.txt,.zip,.mp3,.ogg,.gif,.webp">
+          </label>
+        </div>
+        <div class="row">
+          <textarea id="text" placeholder="Scrivi, incolla YouTube, allega un filmato…"></textarea>
+          <button class="btn send" type="submit">Invia</button>
+        </div>
+        <div id="preview"></div>
+      </form>
+    </section>
+  </div>
+  <div class="modal" id="tripModal">
+    <form class="modal-card" id="tripFormChat">
+      <h2>Crea pagina viaggio</h2>
+      <label>Titolo</label><input type="text" name="title" required>
+      <label>Tipo</label>
+      <select name="kind">
+        <option value="gita">Gita</option>
+        <option value="montagna" selected>Montagna / camminata</option>
+        <option value="viaggio">Viaggio</option>
+        <option value="altro">Altro</option>
+      </select>
+      <label>Luogo</label><input type="text" name="place" required>
+      <div class="two">
+        <div><label>Partenza</label><input type="date" name="date_start"></div>
+        <div><label>Ritorno</label><input type="date" name="date_end"></div>
+      </div>
+      <label>Ritrovo</label><input type="text" name="meeting">
+      <div class="two">
+        <div>
+          <label>Difficoltà</label>
+          <select name="difficulty">
+            <option>facile</option><option selected>media</option><option>impegnativa</option>
+          </select>
+        </div>
+        <div><label>Posti max</label><input type="number" name="max_people" min="0" value="0"></div>
+      </div>
+      <label>Itinerario</label><textarea name="itinerary"></textarea>
+      <label>Note</label><textarea name="notes"></textarea>
+      <label>Foto</label><input type="file" name="cover" accept="image/*">
+      <div class="err" id="terr"></div>
+      <div class="two">
+        <button type="button" class="btn ghost" id="tripCancel">Annulla</button>
+        <button class="btn" type="submit">Crea e manda in chat</button>
+      </div>
+    </form>
+  </div>
+  <div id="cinema">
+    <button class="x" id="cinemaClose">Chiudi cinema</button>
+    <div id="cinemaInner"></div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

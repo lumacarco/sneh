@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MLA & SNEH — entra in chat</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="gate">
+    <div class="card">
+      <div class="logo">MLA <span>&</span> SNEH</div>
+      <p class="tag">Chat realtime Socket.io · punti IA · viaggi</p>
+      <div class="tabs">
+        <button class="on" id="tLogin" type="button">Accedi</button>
+        <button id="tReg" type="button">Registrati</button>
+      </div>
+      <form id="auth">
+        <label>Nickname</label>
+        <input type="text" name="name" required maxlength="24">
+        <label>Password</label>
+        <input type="password" name="password" required minlength="4">
+        <div class="err" id="err"></div>
+        <button class="btn" id="go" type="submit">Entra nella chat</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    let mode = 'login';
+    tLogin.onclick = () => { mode='login'; tLogin.classList.add('on'); tReg.classList.remove('on'); go.textContent='Entra nella chat'; };
+    tReg.onclick = () => { mode='register'; tReg.classList.add('on'); tLogin.classList.remove('on'); go.textContent='Crea account e entra'; };
+    auth.onsubmit = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(auth);
+      const body = Object.fromEntries(fd.entries());
+      const r = await fetch('/api/' + mode, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const d = await r.json();
+      if (!d.ok) { err.textContent = d.error; return; }
+      location.href = '/chat.html';
+    };
+    fetch('/api/me').then(r=>r.json()).then(d => { if (d.ok) location.href='/chat.html'; });
+  </script>
+</body>
+</html>
